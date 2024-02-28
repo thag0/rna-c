@@ -1,3 +1,6 @@
+#ifndef MAT_IMPL
+#define MAT_IMPL
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -24,9 +27,6 @@ typedef struct{
 
 //calcula o tamanho de um array
 #define tam_arr(arr) sizeof(arr)/sizeof(arr[0])
-
-#ifndef MAT_IMPL
-#define MAT_IMPL
 
 /**
  * Aloca dinamicamente uma matriz vazia de 
@@ -58,11 +58,18 @@ void mat_desalocar(Mat m){
    free(m.elementos);
 }
 
+/**
+ * Aleatoriza os valores da matriz dentro do intervalo.
+ * @param m matriz alvo.
+ * @param min valor mínimo.
+ * @param max valor máximo.
+*/
 void mat_randomizar(Mat m, double min, double max){
-   srand(time(0));
+   srand(time(NULL));
 
    for(int i = 0; i < m._tam; i++){
-      m.elementos[i] = (rand() / (double)RAND_MAX) * ((max - min) + min);
+      double val = (double)rand() / (double)RAND_MAX;
+      m.elementos[i] = min + val * (max-min);
    }
 }
 
@@ -149,6 +156,36 @@ void mat_identidade(Mat m){
 }
 
 /**
+ * Verifica se as linhas de A e B são iguais.
+ * @param a primeira matriz.
+ * @param b segunda matriz.
+ * @return resultado da verificação
+*/
+bool mat_comparar_linhas(Mat a, Mat b){
+   return a.lin == b.lin;
+}
+
+/**
+ * Verifica se as colunas de A e B são iguais.
+ * @param a primeira matriz.
+ * @param b segunda matriz.
+ * @return resultado da verificação
+*/
+bool mat_comparar_colunas(Mat a, Mat b){
+   return a.col == b.col;
+}
+
+/**
+ * Verifica se as colunas de A e B são iguais.
+ * @param a primeira matriz.
+ * @param b segunda matriz.
+ * @return resultado da verificação
+*/
+bool mat_comparar_linhas_colunas(Mat a, Mat b){
+   return (a.lin == b.lin)&&(a.col == b.col);
+}
+
+/**
  * Realiza a operação de adição entre as matrizes, salvando o
  * resultado no destino.
  * @param dest matriz de destino para A + B.
@@ -156,10 +193,8 @@ void mat_identidade(Mat m){
  * @param b segunda matriz.
 */
 void mat_add(Mat dest, Mat a, Mat b){
-   assert(a.lin == b.lin);
-   assert(a.col == b.col);
-   assert(a.lin == dest.lin);
-   assert(a.col == dest.col);
+   mat_comparar_linhas_colunas(a, b);
+   mat_comparar_linhas_colunas(a, dest);
 
    int n = dest._tam;
    for(int i = 0; i < n; i++){
@@ -175,8 +210,8 @@ void mat_add(Mat dest, Mat a, Mat b){
  * @param b segunda matriz.
 */
 void mat_sub(Mat dest, Mat a, Mat b){
-   assert(a.lin == b.lin == dest.lin);
-   assert(a.col == b.col == dest.col);
+   mat_comparar_linhas_colunas(a, b);
+   mat_comparar_linhas_colunas(a, dest);
 
    int n = dest._tam;
    for(int i = 0; i < n; i++){
@@ -216,8 +251,8 @@ void mat_mult(Mat dest, Mat a, Mat b){
  * @param b segunda matriz.
 */
 void mad_had(Mat dest, Mat a, Mat b){
-   assert(a.lin == b.lin == dest.lin);
-   assert(a.col == b.col == dest.col);
+   mat_comparar_linhas_colunas(a, b);
+   mat_comparar_linhas_colunas(a, dest);
 
    int n = dest._tam;
    for(int i = 0; i < n; i++){
@@ -242,7 +277,25 @@ Mat mat_transpor(Mat m){
    return t;
 }
 
-void mat_copiar_array(Mat m, double arr[], int tam_arr, int lin){
+/**
+ * 
+*/
+void mat_copiar(Mat dest, Mat m){
+   assert(mat_comparar_linhas_colunas(dest, m));
+
+   for(int i = 0; i < dest._tam; i++){
+      dest.elementos[i] = m.elementos[i];
+   }
+}
+
+/**
+ * Copia o conteúdo do array para uma linha da matriz.
+ * @param m matriz de destino da cópia.
+ * @param lin índice da linha na matriz de destino.
+ * @param arr array contendo os dados desejados.
+ * @param tam_arr tamanho do array fornecido.
+*/
+void mat_copiar_array(Mat m, int lin, double arr[], int tam_arr){
    assert(tam_arr == m.col);
    assert(0 <= lin < tam_arr);
 
@@ -251,8 +304,16 @@ void mat_copiar_array(Mat m, double arr[], int tam_arr, int lin){
    }
 }
 
+/**
+ * Copia o conteúdo da matriz para o destino.
+ * @param dest matriz de destino.
+ * @param m matriz alvo com os dados.
+ * @param id_dest índice da linha na matriz de destino.
+ * @param id_m índice da linha na matriz alvo.
+*/
 void mat_copiar_linha(Mat dest, Mat m, int id_dest, int id_m){
-   assert(dest.col == m.col);
+   //TODO melhorar a lógica para comparação entre as matrizes.
+   assert(mat_comparar_linhas(dest, m) && "As matrizes fornecidas devem conter a mesma quantidade de linhas.");
 
    for(int i = 0; i < dest.col; i++){
       mat_editar(dest, id_dest, i, mat_elemento(m, id_m, i));
