@@ -82,12 +82,12 @@ void rna_densa_print(Densa densa){
  * apenas a primeira linha da matriz.
 */
 void rna_densa_forward(Densa densa, Mat entrada){
-   mat_copiar_linha(densa.entrada, entrada, 0, 0);
+   // mat_copiar_linha(densa.entrada, entrada, 0, 0);
    
-   mat_mult(densa.saida, densa.entrada, densa._pesos);
-   mat_add(densa.saida, densa.saida, densa._bias);
+   mat_mult(densa.somatorio, densa.entrada, densa._pesos);
+   mat_add(densa.somatorio, densa.somatorio, densa._bias);
 
-   act_sigmoid(densa.saida, densa.saida);
+   act_sigmoid(densa.saida, densa.somatorio);
 }
 
 /**
@@ -96,21 +96,23 @@ void rna_densa_forward(Densa densa, Mat entrada){
  * @param grad gradientes da camada seguinte.
 */
 void rna_densa_backward(Densa densa, Mat grad){
-   assert(mat_comparar_colunas(densa.grad_saida, grad));
+   assert(mat_comparar_colunas(densa.grad_saida, grad) && "Graidente de saida da camada densa e grad possuem colunas diferentes.");
    mat_copiar(densa.grad_saida, grad);
 
    //TODO implementar uma forma de calcular a derivada
-   for(int i = 0; i < densa._derivada._tam; i++){
+   for(int i = 0; i < densa._derivada.col; i++){
       double g = densa.grad_saida.elementos[i];
       double e = densa.somatorio.elementos[i];
       double dx = _sigmoid_dx(e);
-      densa._derivada.elementos[i] = dx * g;  
+      mat_editar(densa._derivada, 0, i, (double)(dx*g));  
    }
 
    //calculo dos gradientes da camada
    mat_mult(densa._grad_pesos, mat_transpor(densa.entrada), densa._derivada);
    mat_copiar(densa._grad_bias, densa._derivada);
-   mat_mult(densa.grad_entrada, densa._derivada, mat_transpor(densa._pesos));
+
+   //corrigir
+   // mat_mult(densa.grad_entrada, densa._derivada, mat_transpor(densa._pesos));
 }
 
 #endif

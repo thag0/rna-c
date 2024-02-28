@@ -40,11 +40,11 @@ Mat mat_alocar(int linhas, int colunas){
    
    m.lin = linhas;
    m.col = colunas;
-   m.elementos = (double*) malloc(sizeof(double) * linhas * colunas);
    m._tam = m.lin * m.col;
+   m.elementos = (double*) malloc(sizeof(double) * m._tam);
 
    for(int i = 0; i < m._tam; i++){
-      m.elementos[i] = 0;
+      m.elementos[i] = 0.0;
    }
 
    return m;
@@ -81,7 +81,7 @@ void mat_randomizar(Mat m, double min, double max){
  * @return valor contido de acordo com os índices.
 */
 double mat_elemento(Mat m, int lin, int col){
-   return m.elementos[lin*m.lin + col];
+   return m.elementos[lin*m.col + col];
 }
 
 /**
@@ -261,6 +261,20 @@ void mad_had(Mat dest, Mat a, Mat b){
 }
 
 /**
+ * Multiplica todo o conteúdo da matriz por um valor constante.
+ * @param dest matriz de destino.
+ * @param m matriz alvo.
+ * @param esc valor constante.
+*/
+void mat_mult_escalar(Mat dest, Mat m, double esc){
+   assert(mat_comparar_linhas_colunas(dest, m) && "Matriz e destino fornecidas devem possuir o mesmo formato.");
+
+   for(int i = 0; i < dest._tam; i++){
+      dest.elementos[i] = m.elementos[i] * esc;
+   }
+}
+
+/**
  * Transpôe o conteúdo da matriz.
  * @param m matriz alvo.
  * @return matriz transposta.
@@ -278,10 +292,12 @@ Mat mat_transpor(Mat m){
 }
 
 /**
- * 
+ * Copia o conteúdo da matriz para o destino.
+ * @param dest matriz de destino.
+ * @param m matriz com os dados.
 */
 void mat_copiar(Mat dest, Mat m){
-   assert(mat_comparar_linhas_colunas(dest, m));
+   assert(mat_comparar_linhas_colunas(dest, m) && "Matriz e distino possuem formatos diferentes.");
 
    for(int i = 0; i < dest._tam; i++){
       dest.elementos[i] = m.elementos[i];
@@ -312,12 +328,37 @@ void mat_copiar_array(Mat m, int lin, double arr[], int tam_arr){
  * @param id_m índice da linha na matriz alvo.
 */
 void mat_copiar_linha(Mat dest, Mat m, int id_dest, int id_m){
-   //TODO melhorar a lógica para comparação entre as matrizes.
-   assert(mat_comparar_linhas(dest, m) && "As matrizes fornecidas devem conter a mesma quantidade de linhas.");
+   assert(0 < id_dest < dest.col);
+   assert(0 < id_m < m.col);
 
    for(int i = 0; i < dest.col; i++){
       mat_editar(dest, id_dest, i, mat_elemento(m, id_m, i));
    }
+}
+
+/**
+ * Copia o conteúdo do array para a matriz.
+ * @param dest matriz de destino.
+ * @param arr array contendo os dados.
+ * @param tam_arr tamanho do array.
+*/
+void mat_atribuir_array(Mat dest, double arr[], int tam_arr){
+   assert(dest._tam == tam_arr);
+
+   for(int i = 0; i < dest._tam; i++){
+      dest.elementos[i] = arr[i];
+   }
+}
+
+Mat mat_obter_linha(Mat m, int lin){
+   assert(0 <= lin < m.lin);
+   
+   Mat linha = mat_alocar(1, m.col);
+   for(int i = 0; i < m.col; i++){
+      mat_editar(linha, 0, i, mat_elemento(m, lin, i));
+   }
+
+   return linha;
 }
 
 #endif
