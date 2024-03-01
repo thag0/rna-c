@@ -45,16 +45,17 @@ void testar_dados(Densa densa, Mat entrada, Mat saida){
 
 int main(void){
    srand(time(NULL));
+
    Mat entrada = mat_alocar(4, 2);
    Mat saida = mat_alocar(4, 1);
-   mat_atribuir_array(entrada, dados_entrada, tam_arr(dados_entrada));
-   mat_atribuir_array(saida, dados_saida, tam_arr(dados_saida));
+   mat_atribuir_array(entrada, dados_entrada, arr_tam_arr(dados_entrada));
+   mat_atribuir_array(saida, dados_saida, arr_tam_arr(dados_saida));
    
    Densa densa = rna_densa_alocar(entrada.col, saida.col);
+   rna_densa_print(densa);
 
    double ta = 0.1;
-   testar_dados(densa, entrada, saida);
-      rna_treinar_densa(densa, entrada, saida, ta, 10*1000); 
+   rna_treinar_densa(densa, entrada, saida, ta, 1*1000); 
    testar_dados(densa, entrada, saida);
 
    return 0;

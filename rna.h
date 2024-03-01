@@ -103,13 +103,12 @@
     * @param densa camada densa.
     * @param grad gradientes da camada seguinte.
    */
-   void rna_densa_backward(Densa densa, Mat grad){
-      assert(mat_comparar_colunas(densa.grad_saida, grad) && "Graidente de saida da camada densa e grad possuem colunas diferentes.");
-      mat_copiar(densa.grad_saida, grad);
+   void rna_densa_backward(Densa densa, Array grad){
+      assert(densa.grad_saida.col == grad._tam && "Graidente de saida da camada densa e grad possuem tamanhos diferentes.");
+      mat_copiar_array(densa.grad_saida, grad, 0);
 
-      //TODO implementar uma forma de calcular a derivada
-      act_sigmoid_derivada(densa.grad_saida, densa.grad_saida);
-      mat_had(densa._derivada, densa.grad_saida, grad);
+      act_sigmoid_derivada(densa._derivada, densa.somatorio);
+      mat_had(densa._derivada, densa.grad_saida, densa._derivada);
 
       //calculo dos gradientes da camada
       mat_mult(densa._grad_pesos, mat_transpor(densa.entrada), densa._derivada);
@@ -143,22 +142,26 @@
     * @param epochs quantidade de épocas de treino.
    */
    void rna_treinar_densa(Densa camada, Mat entrada, Mat saida, double ta, int epochs){
-      assert(camada.saida.col == saida.col && "Saida da cama matriz de saida possuem colunas difernetes.");
+      assert(camada.saida.col == saida.col && "Saida da camada e matriz de saida possuem colunas diferentes.");
 
       int amostras = entrada.lin;
-      Mat grad = mat_alocar(camada.saida.lin, camada.saida.col);
+      Array grad = arr_alocar(camada.saida.col);
 
       for(int e = 0; e < epochs; e++){
-         for(int j = 0; j < amostras; j++){
-            rna_densa_forward(camada, mat_linha_para_array(entrada, j));
-            perda_mse_derivada(grad, camada.saida, mat_obter_linha(saida, j));
+         for(int i = 0; i < amostras; i++){
+            rna_densa_forward(camada, mat_linha_para_array(entrada, i));
+            perda_mse_derivada(
+               grad, 
+               mat_linha_para_array(camada.saida, 0), 
+               mat_linha_para_array(saida, i)
+            );
 
             rna_densa_backward(camada, grad);
             rna_gradient_descent(camada._pesos, camada._grad_pesos, camada._bias, camada._grad_bias, ta);
          }
       }
 
-      mat_desalocar(grad);
+      arr_desalocar(grad);
    }
 
 #endif

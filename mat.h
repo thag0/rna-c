@@ -26,8 +26,7 @@
    //print padrão de uma matriz
    #define mat_print(m) _mat_print(m, #m, "")
 
-   //calcula o tamanho de um array
-   #define tam_arr(arr) sizeof(arr)/sizeof(arr[0])
+   #define _calcular_indice(mat, lin, col) (lin)*(m).col + (col)
 
    /**
     * Preenche todo o conteúdo da matriz.
@@ -89,7 +88,7 @@
     * @return valor contido de acordo com os índices.
    */
    double mat_elemento(Mat m, int lin, int col){
-      return m.elementos[lin*m.col + col];
+      return m.elementos[_calcular_indice(m, lin, col)];
    }
 
    /**
@@ -100,7 +99,7 @@
     * @param val valor que será inserido.
    */
    void mat_editar(Mat m, int lin, int col, double val){
-      m.elementos[lin*m.lin + col] = val;
+      m.elementos[_calcular_indice(m, lin, col)] = val;
    }
 
    /**

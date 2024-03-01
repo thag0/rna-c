@@ -19,6 +19,9 @@
       double* elementos;
    }Array;
 
+   //calcula o tamanho de um array
+   #define arr_tam_arr(arr) sizeof(arr)/sizeof(arr[0])
+
    /**
     * Preenche todo o conteúdo do array com o valor fornecido.
     * @param arr array desejado.
@@ -45,6 +48,36 @@
       arr_preencher(arr, 0);
 
       return arr;
+   }
+
+   /**
+    * Desaloca os elementos dinâmicos do array.
+    * @param arr array desejado.
+   */
+   void arr_desalocar(Array arr){
+      free(arr.elementos);
+   }
+
+   void arr_print(Array arr){
+      char* pad = "   ";
+      printf("Array = [\n%s", pad);
+      for(int i = 0; i < arr._tam; i++){
+         printf("%f", arr.elementos[i]);
+      }
+      printf("]\n");
+   }
+
+   /**
+    * Atribui os valores do array ao destino.
+    * @param dest estrutura de array para destino.
+    * @param arr array desejado para atribuição.
+   */
+   void arr_atribuir_array(Array dest, double arr[], int tam_arr){
+      assert(dest._tam == tam_arr);
+      
+      for(int i = 0; i < dest._tam; i++){
+         dest.elementos[i] = arr[i];
+      }
    }
 
    /**

@@ -29,21 +29,18 @@
 
    /**
     * Calcula a derivada do erro médio quadrado entre os dados previstos e os dados reais.
-    * @param dest matriz de destino dos cálculos de derivadas..
+    * @param dest destino dos cálculos de derivadas..
     * @param prev valores previstos.
     * @param real valores reais.
    */
-   void perda_mse_derivada(Mat dest, Mat prev, Mat real){
-      assert(mat_comparar_colunas(prev, real) && "Previsto e Real possuem colunas diferentes");
-      assert(mat_comparar_colunas(dest, prev) && "Destino e Previsto possuem colunas diferentes");
+   void perda_mse_derivada(Array dest, Array prev, Array real){
+      assert(prev._tam == real._tam && "Previsto e Real possuem tamanhos diferentes");
+      assert(dest._tam == prev._tam && "Destino e Previsto possuem tamanhos diferentes");
 
-      double perda = 0;
-      int n = prev.lin;
-
-      double grad[n];
+      int n = prev._tam;
       for(int i = 0; i < n; i++){
-         mat_editar(dest, 0, i, (
-            (2.0 / n) * (mat_elemento(prev, 0, i) - mat_elemento(real, 0, i))
+         arr_editar(dest, i, (
+            (2.0 / n) * (arr_elemento(prev, i) - arr_elemento(real, i))
          ));
       }
    }
