@@ -1,5 +1,5 @@
-#ifndef RNA_INC
-   #define RNA_INC
+#ifndef INC_RNA
+   #define INC_RNA
 
    #include "arr.h"
    #include "mat.h"
@@ -20,9 +20,15 @@
       Mat _bias;
       Mat _grad_bias;
       Mat _derivada;
+
+      Ativacao atv;
    }Densa;
 
    //implementações
+
+   void rna_densa_config_ativacao(Densa densa, char* nome){
+      act_config(&densa.atv, nome);
+   }
 
    /**
     * Aloca uma nova camada densa. Os valores dos padrâmetros treináveis
@@ -50,6 +56,9 @@
       mat_randomizar(d._pesos, -1, 1);
       mat_randomizar(d._bias, -1, 1);
 
+      d.atv = act_alocar();
+      act_config(&d.atv, "sigmoid");//ativação padrão
+
       return d;
    }
 
@@ -68,6 +77,8 @@
       mat_desalocar(densa._bias);
       mat_desalocar(densa._grad_bias);
       mat_desalocar(densa._derivada);
+
+      act_destruir(densa.atv);
    }
 
    /**
@@ -77,9 +88,11 @@
    */
    void rna_densa_print(Densa densa){
       char* pad = "   ";
+
       printf("Densa = [\n");
-      _mat_print(densa._pesos, "kernel", pad);
-      _mat_print(densa._bias, "bias", pad);
+         _mat_print(densa._pesos, "kernel", pad);
+         _mat_print(densa._bias, "bias", pad);
+         printf("%sAtv: %s\n", pad, densa.atv.nome);
       printf("]\n");
    }
 
@@ -95,7 +108,8 @@
       mat_mult(densa.somatorio, densa.entrada, densa._pesos);
       mat_add(densa.somatorio, densa.somatorio, densa._bias);
 
-      act_sigmoid(densa.saida, densa.somatorio);
+      act_ativacao(densa.saida, densa.somatorio, densa.atv);
+      // act_sigmoid(densa.saida, densa.somatorio);
    }
 
    /**
@@ -107,7 +121,7 @@
       assert(densa.grad_saida.col == grad._tam && "Graidente de saida da camada densa e grad possuem tamanhos diferentes.");
       mat_copiar_array(densa.grad_saida, grad, 0);
 
-      act_sigmoid_derivada(densa._derivada, densa.somatorio);
+      act_derivada(densa._derivada, densa.somatorio, densa.atv);
       mat_had(densa._derivada, densa.grad_saida, densa._derivada);
 
       //calculo dos gradientes da camada

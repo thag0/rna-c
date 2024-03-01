@@ -1,5 +1,5 @@
-#ifndef PERDAS_INC
-   #define PERDAS_INC
+#ifndef INC_PERDA
+   #define INC_PERDA
    
    #include "mat.h"
    #define MAT_INC

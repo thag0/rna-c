@@ -1,5 +1,5 @@
-#ifndef MAT_INC
-   #define MAT_INC
+#ifndef INC_MAT
+   #define INC_MAT
 
    #include <stdio.h>
    #include <stdlib.h>

@@ -12,8 +12,8 @@ double dados_entrada[] = {
 
 double dados_saida[] = {
    0,
-   1,
-   1,
+   0,
+   0,
    1,
 };
 
@@ -52,11 +52,12 @@ int main(void){
    mat_atribuir_array(saida, dados_saida, arr_tam_arr(dados_saida));
    
    Densa densa = rna_densa_alocar(entrada.col, saida.col);
-   rna_densa_print(densa);
+   rna_densa_config_ativacao(densa, "tanh");
 
-   double ta = 0.1;
-   rna_treinar_densa(densa, entrada, saida, ta, 1*1000); 
+   double ta = 0.01;
+   rna_treinar_densa(densa, entrada, saida, ta, 20*1000); 
    testar_dados(densa, entrada, saida);
+   rna_densa_print(densa);
 
    return 0;
 }
