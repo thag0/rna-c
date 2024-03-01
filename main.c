@@ -1,10 +1,7 @@
 #include <stdio.h>
 
 #include "rna.h"
-#define RNA_IMPL
-
-#include "perdas.h"
-#define PERDA_IMPL
+#define RNA_INC
 
 double dados_entrada[] = {
    0, 0,
@@ -20,59 +17,44 @@ double dados_saida[] = {
    1,
 };
 
-void treinar_densa(Densa camada, Mat entrada, Mat saida, double ta, int epochs){
-   assert(camada.saida.col == saida.col && "Saida da cama matriz de saida possuem colunas difernetes.");
-
-   int amostras = entrada.lin;
-   Mat grad = mat_alocar(1, camada.saida.col);
-
-   for(int e = 0; e < epochs; e++){
-      for(int j = 0; j < amostras; j++){
-         rna_densa_forward(camada, mat_obter_linha(entrada, j));
-         perda_mse_derivada(grad, camada.saida, saida);
-         rna_densa_backward(camada, grad);
-
-         mat_mult_escalar(camada._grad_pesos, camada._grad_pesos, ta);
-         mat_mult_escalar(camada._grad_bias, camada._grad_bias, ta);
-
-         mat_add(camada._pesos, camada._pesos, camada._grad_pesos);
-         mat_add(camada._bias, camada._bias, camada._grad_bias);
-      }
-   }
-
-   mat_desalocar(grad);
-}
-
 void testar_dados(Densa densa, Mat entrada, Mat saida){
    int amostras = entrada.lin;
+   char* pad = "   ";
+   double perda = 0;
 
+   printf("teste = [\n");
    for(int i = 0; i < amostras; i++){
-      rna_densa_forward(densa, mat_obter_linha(entrada, i));
+      rna_densa_forward(densa, mat_linha_para_array(entrada, i));
       double prev = mat_elemento(densa.saida, 0, 0);
       double real = mat_elemento(saida, i, 0);
-      printf("%.1f  %.1f -> prev: %.1f real %.1f\n", mat_elemento(entrada, i, 0), mat_elemento(entrada, i, 1), prev, real);
+      printf("%s%.1f  %.1f -> %.1f, prev: %f\n",
+         pad, 
+         mat_elemento(entrada, i, 0), 
+         mat_elemento(entrada, i, 1), 
+         real,
+         prev 
+      );
+
+      perda += perda_mse(
+         mat_linha_para_array(densa.saida, 0) , mat_linha_para_array(saida, i));
    }
+   perda /= 4;
+   printf("%sperda: %f\n", pad, perda);
+   printf("]\n");
 }
 
 int main(void){
-   Densa densa = rna_densa_alocar(2, 1);
-   // rna_densa_print(densa);
-
+   srand(time(NULL));
    Mat entrada = mat_alocar(4, 2);
    Mat saida = mat_alocar(4, 1);
    mat_atribuir_array(entrada, dados_entrada, tam_arr(dados_entrada));
    mat_atribuir_array(saida, dados_saida, tam_arr(dados_saida));
+   
+   Densa densa = rna_densa_alocar(entrada.col, saida.col);
 
    double ta = 0.1;
-   double perda; 
-   perda = perda_mse(densa, entrada, saida);
-   printf("perda: %f\n", perda);
-
-   treinar_densa(densa, entrada, saida, ta, 20*1000);   
-   
-   perda = perda_mse(densa, entrada, saida);
-   printf("perda: %f\n", perda);
-   
+   testar_dados(densa, entrada, saida);
+      rna_treinar_densa(densa, entrada, saida, ta, 10*1000); 
    testar_dados(densa, entrada, saida);
 
    return 0;
