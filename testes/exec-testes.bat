@@ -1,3 +1,3 @@
 cls
-gcc -I../lib mat_teste.c -o mat_teste
+@ gcc mat_teste.c -o mat_teste -I../lib/rna
 @ "./mat_teste.exe"

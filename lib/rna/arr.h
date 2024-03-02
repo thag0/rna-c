@@ -58,6 +58,10 @@
       free(arr.elementos);
    }
 
+   /**
+    * Exibe o conteúdo do array.
+    * @param arr array desejado.
+   */
    void arr_print(Array arr){
       char* pad = "   ";
       printf("Array = [\n%s", pad);

@@ -1,21 +1,20 @@
 #include <stdio.h>
-#include "lib/rna.h"
+#include "rna.h"
 
 /**
- * .
- * @param .
- * @param .
- * @param .
+ * Testa todo o conjunto de dados no modelo.
+ * @param mlp modelo multilayer perceptron.
+ * @param entrada matriz com os dados de entrada.
+ * @param saida matriz com os dados de saída.
 */
-void testar_dados(Mlp rede, Mat entrada, Mat saida){
+void testar_dados(Mlp mlp, Mat entrada, Mat saida){
    int amostras = entrada.lin;
    char* pad = "    ";
-   double perda = 0;
 
    printf("Resultados = [\n");
       for(int i = 0; i < amostras; i++){
-         rna_mlp_forward(rede, mat_linha_para_array(entrada, i));
-         double prev = mat_elemento(rna_mlp_saida(rede), 0, 0);
+         rna_forward(mlp, mat_linha_para_array(entrada, i));
+         double prev = mat_elemento(rna_saida(mlp), 0, 0);
          double real = mat_elemento(saida, i, 0);
 
          printf("%s%.1f  %.1f -> %.1f, prev: %.8f\n",
@@ -26,12 +25,7 @@ void testar_dados(Mlp rede, Mat entrada, Mat saida){
             prev 
          );
 
-         perda += perda_mse(
-            mat_linha_para_array(rna_mlp_saida(rede), 0), 
-            mat_linha_para_array(saida, i)
-         );
       }
-      printf("\n%sperda: %.8f\n", pad, (perda / amostras));
    printf("]\n");
 }
 
@@ -59,15 +53,17 @@ void modelo_xor(){
    mat_atribuir_array(entrada, dados_entrada, arr_tam_arr(dados_entrada));
    mat_atribuir_array(saida, dados_saida, arr_tam_arr(dados_saida));
 
-   double arr[] = {2, 3, 1};
+   double arr[] = {2, 4, 1};
    Array arq = arr_alocar(arr_tam_arr(arr));
    arr_atribuir_array(arq, arr, arr_tam_arr(arr));
 
-   Mlp rede = rna_alocar_mlp(arq);
+   Mlp rede = rna_alocar(arq);
    rna_print(rede);
 
-   rna_mlp_treino(rede, entrada, saida, 0.1, 10*1000);
+   Perda perda = perda_alocar("mse");
+   rna_treinar(rede, entrada, saida, perda, 0.1, 10*1000);
    testar_dados(rede, entrada, saida);
+   printf("Perda: %.9f", rna_avaliar(rede, entrada, saida, perda));
 }
 
 int main(void){

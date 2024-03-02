@@ -8,59 +8,37 @@
     * Camada densa de neurônios.
    */
    typedef struct{
-      /**
-       * Entrada da camada, com formato (1, tam_entrada)
-      */
+      // Entrada da camada, com formato (1, tam_entrada)
       Mat entrada;
 
-      /**
-       * Resultado parcial do processamento da camada.
-      */
+      //Resultado parcial do processamento da camada.
       Mat somatorio;
 
-      /**
-       * Resultado da ativação da camada.
-      */
+      //Resultado da ativação da camada.
       Mat saida;
 
-      /**
-       * Gradiente da saída em relação a entrada (pra retropropagar).
-      */
+      //Gradiente da saída em relação a entrada (pra retropropagar).
       Mat grad_entrada;
 
-      /**
-       * Gradiente em relação a saída da camada.
-      */
+      //Gradiente em relação a saída da camada.
       Mat grad_saida;
 
-      /**
-       * Kernel da camada.
-      */
+      //Kernel da camada.
       Mat _pesos;
 
-      /**
-       * Gradiente para os kernels da camada.
-      */
+      //Gradiente para os kernels da camada.
       Mat _grad_pesos;
 
-      /**
-       * Bias da camada.
-      */
+      //Bias da camada.
       Mat _bias;
 
-      /**
-       * Gradiente para os bias da camada.
-      */
+      //Gradiente para os bias da camada.
       Mat _grad_bias;
 
-      /**
-       * Resultado da derivada da função de ativação.
-      */
+      //Resultado da derivada da função de ativação.
       Mat _derivada;
 
-      /**
-       * Função de ativação da camada.
-      */
+      //Função de ativação da camada.
       Ativacao atv;
    }Densa;
 

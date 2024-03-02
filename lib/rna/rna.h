@@ -26,7 +26,10 @@
 
    }Mlp;
 
+   //Quantiade de elementos de entrada do modelo
    #define mlp_tam_entrada(mlp) mlp._camadas[0].entrada.col
+
+   //Quantiade de elementos de saída do modelo
    #define mlp_tam_saida(mlp) mlp._camadas[mlp._tam-1].saida.col
 
    /**
@@ -34,7 +37,7 @@
     * @param arq arquitetura do modelo, cada elementos da arquitetura deve
     * conter a quantidade de neurônios de cada camada do modelo.
    */
-   Mlp rna_alocar_mlp(Array arq){
+   Mlp rna_alocar(Array arq){
       if(arq._tam < 2){
          printf("A arquitetura da rede deve conter ao menos dois elementos, recebido: %d", arq._tam);
          assert(0);
@@ -59,7 +62,7 @@
     * Desaloca os elementos dinâmicos do modelo.
     * @param mlp modelo multilayer perceptron.
    */
-   void rna_mlp_destruir(Mlp mlp){
+   void rna_desalocar(Mlp mlp){
       free(mlp._camadas);
       arr_desalocar(mlp.arq);
    }
@@ -92,7 +95,7 @@
     * @param mlp modelo multilayer perceptron.
     * @param entrada dados de entrada para o modelo.
    */
-   void rna_mlp_forward(Mlp mlp, Array entrada){
+   void rna_forward(Mlp mlp, Array entrada){
       if(mlp_tam_entrada(mlp) != entrada._tam){
          printf(
             "Tamanho do array de entrada (%d) diferente da capacidade da camada (%)", 
@@ -116,7 +119,7 @@
     * @param mlp modelo multilayer perceptron.
     * @param entrada gradientes em relação as saídas do modelo.
    */
-   void rna_mlp_backward(Mlp mlp, Array grad){
+   void rna_backward(Mlp mlp, Array grad){
       if(mlp_tam_saida(mlp) != grad._tam){
          printf(
             "Tamanho do array de gradientes (%d) diferente da capacidade da camada (%)", 
@@ -140,7 +143,7 @@
     * Zera todos os gradientes acumulados do modelo.
     * @param mlp modelo multilayer perceptron.
    */
-   void rna_mlp_zerar_gradientes(Mlp mlp){
+   void rna_zerar_gradientes(Mlp mlp){
       for(int i = 0; i < mlp._tam; i++){
          densa_zerar_gradientes(mlp._camadas[i]);
       }
@@ -167,7 +170,7 @@
     * @param mlp modelo multilayer perceptron.
     * @param t_a taxa de aprendizado do otimizador.
    */
-   void rna_mlp_otimizar(Mlp mlp, double t_a){
+   void rna_otimizar(Mlp mlp, double t_a){
       for(int i = 0; i < mlp._tam; i++){
          rna_gradient_descent(
             mlp._camadas[i]._pesos, 
@@ -184,8 +187,40 @@
     * @param mlp modelo multilayer perceptron.
     * @return saída do modelo.
    */
-   Mat rna_mlp_saida(Mlp mlp){
+   Mat rna_saida(Mlp mlp){
       return mlp._camadas[mlp._tam-1].saida;
+   }
+
+   /**
+    * Calcula o valor de perda do modelo.
+    * @param mlp modelo multilayer perceptron.
+    * @param entrada dados de entrada para o modelo.
+    * @param saida dados de saída em relação a entrada.
+    * @param perda função de perda que calculará o erro do modelo.
+   */
+   double rna_avaliar(Mlp mlp, Mat entrada, Mat saida, Perda perda){
+      //informar erros personalizados.
+      if(mlp_tam_entrada(mlp) != entrada.col){
+         assert(0);
+      }
+      if(mlp_tam_saida(mlp) != saida.col){
+         assert(0);
+      }
+      if(entrada.lin != saida.lin){
+         assert(0);
+      }
+
+      int amostras = entrada.lin;
+      double p = 0;
+      for(int i = 0; i < amostras; i++){
+         rna_forward(mlp, mat_linha_para_array(entrada, i));
+         p += perda.calcular(
+            mat_linha_para_array(rna_saida(mlp), 0), 
+            mat_linha_para_array(saida, i)
+         );
+      }
+      
+      return p/amostras;
    }
 
    /**
@@ -193,10 +228,11 @@
     * @param mlp modelo multilayer perceptron.
     * @param entrada dados de entrada para o modelo.
     * @param saida dados de saída em relação a entrada.
+    * @param perda função de perda que será usada para calcular os gradientes do modelo.
     * @param t_a taxa de aprendizado para o otimizador.
     * @param epochs épocas de treinamento.
    */
-   void rna_mlp_treino(Mlp mlp, Mat entrada, Mat saida, double t_a, int epochs){
+   void rna_treinar(Mlp mlp, Mat entrada, Mat saida, Perda perda, double t_a, int epochs){
       if(mlp_tam_entrada(mlp) != entrada.col){
          printf(
             "A quantiade de amostras de entrada (%d) é diferente da capacidade do modelo (%d).\n", 
@@ -222,17 +258,17 @@
       int amostras = entrada.lin;
       for(int e = 0; e < epochs; e++){
          for(int i = 0; i < amostras; i++){
-            rna_mlp_zerar_gradientes(mlp);
-            rna_mlp_forward(mlp, mat_linha_para_array(entrada, i));
+            rna_zerar_gradientes(mlp);
+            rna_forward(mlp, mat_linha_para_array(entrada, i));
             
-            perda_mse_derivada(
+            perda.derivada(
                grad, 
-               mat_linha_para_array(rna_mlp_saida(mlp), 0), 
+               mat_linha_para_array(rna_saida(mlp), 0), 
                mat_linha_para_array(saida, i)
             );
 
-            rna_mlp_backward(mlp, grad);
-            rna_mlp_otimizar(mlp, t_a);
+            rna_backward(mlp, grad);
+            rna_otimizar(mlp, t_a);
          }
       }
 

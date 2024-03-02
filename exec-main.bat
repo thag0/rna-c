@@ -1,3 +1,3 @@
 cls
-@ gcc -o main main.c -I./lib -I./lib/ativacoes
+@ gcc main.c -o main -I./lib/rna 
 @ "./main.exe"
