@@ -8,9 +8,17 @@
    #include "mat.h"
    #define MAT_INC
 
+   /**
+    * Função de ativação genérica.
+   */
    typedef struct{
-      double (*forward)(double);  // Função de ativação
-      double (*backward)(double);  // Derivada da função de ativação
+      //Função de ativação
+      double (*forward)(double);
+
+      //Derivada da função de ativação 
+      double (*backward)(double);
+      
+      //Nome da função
       char* nome;
    }Ativacao;
 
@@ -20,7 +28,7 @@
     * @param m matriz de entrada para a função.
     * @param atv função de ativação que será aplicada.
    */
-   void act_ativacao(Mat dest, Mat m, Ativacao atv){
+   void atv_ativacao(Mat dest, Mat m, Ativacao atv){
       for(int i = 0; i < dest._tam; i++){
          dest.elementos[i] = atv.forward(m.elementos[i]);
       }
@@ -33,7 +41,7 @@
     * @param m matriz de entrada para a função.
     * @param atv função de ativação que será aplicada.
    */
-   void act_derivada(Mat dest, Mat m, Ativacao atv){
+   void atv_derivada(Mat dest, Mat m, Ativacao atv){
       for(int i = 0; i < dest._tam; i++){
          dest.elementos[i] = atv.backward(m.elementos[i]);
       }
@@ -44,7 +52,7 @@
     * @param x valor de entrada para função.
     * @return resultado da ativação.
    */
-   double act_relu(double x){
+   double atv_relu(double x){
       return x > 0 ? x : 0;
    }
 
@@ -53,8 +61,26 @@
     * @param x valor de entrada para função.
     * @return resultado da derivada da função.
    */
-   double act_relu_dx(double x){
+   double atv_relu_dx(double x){
       return x > 0 ? 1 : 0;
+   }
+
+   /**
+    * Calcula o resultado da ativação leaky relu.
+    * @param x valor de entrada para função.
+    * @return resultado da ativação.
+   */
+   double atv_leaky_relu(double x){
+      return x > 0 ? x : x * 0.01;
+   }
+
+   /**
+    * Calcula o resultado da derivada da ativação leaky relu.
+    * @param x valor de entrada para função.
+    * @return resultado da derivada da função.
+   */
+   double atv_leaky_relu_dx(double x){
+      return x > 0 ? 1 : 0.01;
    }
 
    /**
@@ -62,7 +88,7 @@
     * @param x valor de entrada para função.
     * @return resultado da ativação.
    */
-   double act_sigmoid(double x){
+   double atv_sigmoid(double x){
       return 1.0 / (1.0 + exp(-x));
    }
 
@@ -71,8 +97,8 @@
     * @param x valor de entrada para função.
     * @return resultado da derivada da função.
    */
-   double act_sigmoid_dx(double x){
-      double s = act_sigmoid(x);
+   double atv_sigmoid_dx(double x){
+      double s = atv_sigmoid(x);
       return s * (1 - s);
    }
 
@@ -81,7 +107,7 @@
     * @param x valor de entrada para função.
     * @return resultado da ativação.
    */
-   double act_tanh(double x){
+   double atv_tanh(double x){
       return (2 / (1 + exp(-2*x))) - 1;
    }
 
@@ -90,8 +116,8 @@
     * @param x valor de entrada para função.
     * @return resultado da derivada da função.
    */
-   double act_tanh_dx(double x){
-      double t = act_tanh(x);
+   double atv_tanh_dx(double x){
+      double t = atv_tanh(x);
       return 1 - (t * t);
    }
 
@@ -99,7 +125,7 @@
     * Aloca uma função de ativação dinamicamente.
     * @return ativação alocada.
    */
-   Ativacao act_alocar(){
+   Ativacao atv_alocar(){
       Ativacao at;
       int tam_padrao = 30;//só por garantia
       at.nome = (char*) malloc(sizeof(char) * (strlen("a") * tam_padrao));
@@ -111,7 +137,7 @@
     * Desaloca os dados dinâmicos da ativação.
     * @param atv função de ativação.
    */
-   void act_destruir(Ativacao atv){
+   void atv_destruir(Ativacao atv){
       free(atv.nome);
    }
 
@@ -120,18 +146,18 @@
     * @param atv função de ativação.
     * @param nome nome da função desejada.
    */
-   void act_config(Ativacao *atv, const char* nome){
+   void atv_config(Ativacao *atv, const char* nome){
       if(strcmp(nome, "relu") == 0){
-         atv->forward = act_relu;
-         atv->backward = act_relu_dx;
+         atv->forward = atv_relu;
+         atv->backward = atv_relu_dx;
       
       }else if(strcmp(nome, "sigmoid") == 0){
-         atv->forward = act_sigmoid;
-         atv->backward = act_sigmoid_dx;
+         atv->forward = atv_sigmoid;
+         atv->backward = atv_sigmoid_dx;
       
       }else if(strcmp(nome, "tanh") == 0){
-         atv->forward = act_tanh;
-         atv->backward = act_tanh_dx;
+         atv->forward = atv_tanh;
+         atv->backward = atv_tanh_dx;
 
       }else{
          printf("Atv \"%s\" invalida.\n", nome);

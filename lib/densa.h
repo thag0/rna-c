@@ -8,19 +8,59 @@
     * Camada densa de neurônios.
    */
    typedef struct{
+      /**
+       * Entrada da camada, com formato (1, tam_entrada)
+      */
       Mat entrada;
-      Mat grad_saida;
 
+      /**
+       * Resultado parcial do processamento da camada.
+      */
       Mat somatorio;
+
+      /**
+       * Resultado da ativação da camada.
+      */
       Mat saida;
+
+      /**
+       * Gradiente da saída em relação a entrada (pra retropropagar).
+      */
       Mat grad_entrada;
 
+      /**
+       * Gradiente em relação a saída da camada.
+      */
+      Mat grad_saida;
+
+      /**
+       * Kernel da camada.
+      */
       Mat _pesos;
+
+      /**
+       * Gradiente para os kernels da camada.
+      */
       Mat _grad_pesos;
+
+      /**
+       * Bias da camada.
+      */
       Mat _bias;
+
+      /**
+       * Gradiente para os bias da camada.
+      */
       Mat _grad_bias;
+
+      /**
+       * Resultado da derivada da função de ativação.
+      */
       Mat _derivada;
 
+      /**
+       * Função de ativação da camada.
+      */
       Ativacao atv;
    }Densa;
 
@@ -30,7 +70,7 @@
     * @param nome nove da função de ativação desejada.
    */
    void densa_config_ativacao(Densa densa, char* nome){
-      act_config(&densa.atv, nome);
+      atv_config(&densa.atv, nome);
    }
 
    /**
@@ -59,8 +99,8 @@
       mat_randomizar(d._pesos, -1, 1);
       mat_randomizar(d._bias, -1, 1);
 
-      d.atv = act_alocar();
-      act_config(&d.atv, "sigmoid");//ativação padrão
+      d.atv = atv_alocar();
+      atv_config(&d.atv, "sigmoid");//ativação padrão
 
       return d;
    }
@@ -81,7 +121,7 @@
       mat_desalocar(densa._grad_bias);
       mat_desalocar(densa._derivada);
 
-      act_destruir(densa.atv);
+      atv_destruir(densa.atv);
    }
 
    /**
@@ -94,7 +134,7 @@
    }
 
    /**
-    * Exibe as principais características da camada densa.
+    * Exibe as principais caratverísticas da camada densa.
     * @param densa camada densa.
    */
    void densa_print(Densa densa){
@@ -128,7 +168,7 @@
       mat_mult(densa.somatorio, densa.entrada, densa._pesos);
       mat_add(densa.somatorio, densa.somatorio, densa._bias);
 
-      act_ativacao(densa.saida, densa.somatorio, densa.atv);
+      atv_ativacao(densa.saida, densa.somatorio, densa.atv);
    }
 
    /**
@@ -137,21 +177,28 @@
     * @param grad gradientes da camada seguinte.
    */
    void densa_backward(Densa densa, Array grad){
-      assert(densa.grad_saida.col == grad._tam && "Graidente de saida da camada densa e grad possuem tamanhos diferentes.");
+      if(densa.grad_saida.col != grad._tam){
+         printf(
+            "Tamanho do gradiente de saida da camada densa (%d) e gradiente recebido (%d) possuem tamanhos diferentes.",
+            densa.grad_saida.col,
+            grad._tam
+         );
+         assert(0);
+      }
 
       mat_copiar_array(densa.grad_saida, grad, 0);
-      act_derivada(densa._derivada, densa.somatorio, densa.atv);
+      atv_derivada(densa._derivada, densa.somatorio, densa.atv);
       mat_had(densa._derivada, densa.grad_saida, densa._derivada);
 
+      //usar de acumulador
       Mat temp_grad = mat_alocar(densa._pesos.lin, densa._pesos.col);
 
-      //pesos
+      //grad pesos
       mat_mult(temp_grad, mat_transpor(densa.entrada), densa._derivada);
       mat_add(densa._grad_pesos, densa._grad_pesos, temp_grad);
-      //bias
-      mat_add(densa._grad_bias, densa._grad_bias, densa._derivada);
-      //entrada
-      mat_mult(densa.grad_entrada, densa._derivada, mat_transpor(densa._pesos));
+
+      mat_add(densa._grad_bias, densa._grad_bias, densa._derivada);//grad bias
+      mat_mult(densa.grad_entrada, densa._derivada, mat_transpor(densa._pesos));//grad entrada
    
       mat_desalocar(temp_grad);
    }

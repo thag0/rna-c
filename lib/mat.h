@@ -26,6 +26,7 @@
    //print padrão de uma matriz
    #define mat_print(m) _mat_print(m, #m, "")
 
+   //calcula o índice dentro do array de elementos da martiz
    #define _calcular_indice(mat, lin, col) (lin)*(m).col + (col)
 
    /**
@@ -105,10 +106,10 @@
    /**
     * Preenche todo o conteúdo da matriz.
     * @param m matriz alvo.
-    * @param crescente cresce ou n
+    * @param crescente valor crescrente (1, 2, 3) ou decrescente (-1, -2, -3)
    */
-   void mat_preencher_contador(Mat m, bool crescente){
-      if(crescente){
+   void mat_preencher_contador(Mat m, bool cres){
+      if(cres){
          for(int i = 0; i < m._tam; i++){
             m.elementos[i] = i + 1;
          }
@@ -123,19 +124,21 @@
    /**
     * Exibe o conteúdo da matriz.
     * @param m matriz
+    * @param nome nome personalizado da matriz.
+    * @param pad_in espaçamento inicial (para formatação).
    */
-   void _mat_print(Mat m, char* nome, char* padIn){
+   void _mat_print(Mat m, char* nome, char* pad_in){
       char* pad = "   ";
 
-      printf("%s%s = [\n", padIn, nome);
+      printf("%s%s = [\n", pad_in, nome);
       for(int i = 0; i < m.lin; i++){
-         printf("%s%s", padIn, pad);
+         printf("%s%s", pad_in, pad);
          for(int j = 0; j < m.col; j++){
             printf("%f  ", mat_elemento(m, i, j));
          }
          printf("\n");
       }
-      printf("%s]\n", padIn);
+      printf("%s]\n", pad_in);
    }
 
    /**
