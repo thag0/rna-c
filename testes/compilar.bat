@@ -3,9 +3,9 @@ cls
 
 rem -- compilar --
 set COMPILADOR=gcc
-set ARQ=main.c
-set SAIDA=main
-set INCLUDE=-I./lib/rna
+set ARQ=matriz.c
+set SAIDA=saida/matriz
+set INCLUDE=-I../lib/rna
 
 %COMPILADOR% %ARQ% -o %SAIDA% %INCLUDE% 
 
