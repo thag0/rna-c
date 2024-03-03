@@ -27,9 +27,9 @@
     * @param arr array desejado.
     * @param val valor de preenchimento.
    */
-   void arr_preencher(Array arr, double val){
-      for(int i = 0; i < arr._tam; i++){
-         arr.elementos[i] = val;
+   void arr_preencher(Array* arr, double val){
+      for(int i = 0; i < arr->_tam; i++){
+         arr->elementos[i] = val;
       }
    }
 
@@ -38,12 +38,15 @@
     * @param tam tamanho do array.
     * @return array alocado.
    */
-   Array arr_alocar(int tam){
+   Array* arr_alocar(int tam){
       assert(tam > 0 && "Tamanho do array deve ser maior que zero.");
 
-      Array arr;
-      arr._tam = tam;
-      arr.elementos = (double*) malloc(sizeof(double) * arr._tam);
+      Array* arr = (Array*) malloc(sizeof(Array));
+      assert(arr != NULL && "arr_alocar, arr");
+
+      arr->_tam = tam;
+      arr->elementos = (double*) malloc(sizeof(double) * arr->_tam);
+      assert(arr != NULL && "arr_alocar, arr->elementos");
 
       arr_preencher(arr, 0);
 
@@ -54,19 +57,20 @@
     * Desaloca os elementos dinâmicos do array.
     * @param arr array desejado.
    */
-   void arr_desalocar(Array arr){
-      free(arr.elementos);
+   void arr_desalocar(Array* arr){
+      free(arr->elementos);
+      free(arr);
    }
 
    /**
     * Exibe o conteúdo do array.
     * @param arr array desejado.
    */
-   void arr_print(Array arr){
+   void arr_print(Array* arr){
       char* pad = "   ";
       printf("Array = [\n%s", pad);
-      for(int i = 0; i < arr._tam; i++){
-         printf("%f", arr.elementos[i]);
+      for(int i = 0; i < arr->_tam; i++){
+         printf("%f", arr->elementos[i]);
       }
       printf("]\n");
    }
@@ -76,11 +80,11 @@
     * @param dest estrutura de array para destino.
     * @param arr array desejado para atribuição.
    */
-   void arr_atribuir_array(Array dest, double arr[], int tam_arr){
-      assert(dest._tam == tam_arr);
+   void arr_atribuir_array(Array* dest, double arr[], int tam_arr){
+      assert(dest->_tam == tam_arr);
       
-      for(int i = 0; i < dest._tam; i++){
-         dest.elementos[i] = arr[i];
+      for(int i = 0; i < dest->_tam; i++){
+         dest->elementos[i] = arr[i];
       }
    }
 
@@ -90,9 +94,9 @@
     * @param id índice do elemento.
     * @return valor contido no array.
    */
-   double arr_elemento(Array arr, int id){
-      assert((id >= 0 && id < arr._tam) && "Indice invalido.");
-      return arr.elementos[id];
+   double arr_elemento(Array* arr, int id){
+      assert((id >= 0 && id < arr->_tam) && "Indice invalido.");
+      return arr->elementos[id];
    }
 
    /**
@@ -101,9 +105,24 @@
     * @param id índice dentro do array.
     * @param val novo valor para o elemento.
    */
-   void arr_editar(Array arr, int id, double val){
-      assert((id >= 0 && id < arr._tam) && "Indice invalido.");
-      arr.elementos[id] = val;
+   void arr_editar(Array* arr, int id, double val){
+      assert((id >= 0 && id < arr->_tam) && "Indice invalido.");
+      arr->elementos[id] = val;
+   }
+
+   /**
+    * Clona o conteúd do array numa estrutura separada.
+    * @param arr array desejado.
+    * @return clone do array.
+   */
+   Array* arr_clonar(Array* arr){
+      Array* clone = arr_alocar(arr->_tam);
+
+      for(int i = 0; i < clone->_tam; i++){
+         clone->elementos[i] = arr->elementos[i];
+      }
+
+      return clone;
    }
 
 #endif

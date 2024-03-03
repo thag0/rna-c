@@ -28,9 +28,9 @@
     * @param m matriz de entrada para a função.
     * @param atv função de ativação que será aplicada.
    */
-   void atv_ativacao(Mat dest, Mat m, Ativacao atv){
-      for(int i = 0; i < dest._tam; i++){
-         dest.elementos[i] = atv.forward(m.elementos[i]);
+   void atv_ativacao(Mat* dest, Mat* m, Ativacao* atv){
+      for(int i = 0; i < dest->_tam; i++){
+         dest->elementos[i] = atv->forward(m->elementos[i]);
       }
    }
 
@@ -41,9 +41,9 @@
     * @param m matriz de entrada para a função.
     * @param atv função de ativação que será aplicada.
    */
-   void atv_derivada(Mat dest, Mat m, Ativacao atv){
-      for(int i = 0; i < dest._tam; i++){
-         dest.elementos[i] = atv.backward(m.elementos[i]);
+   void atv_derivada(Mat* dest, Mat* m, Ativacao* atv){
+      for(int i = 0; i < dest->_tam; i++){
+         dest->elementos[i] = atv->backward(m->elementos[i]);
       }
    }
 
@@ -125,20 +125,25 @@
     * Aloca uma função de ativação dinamicamente.
     * @return ativação alocada.
    */
-   Ativacao atv_alocar(){
-      Ativacao at;
-      int tam_padrao = 30;//só por garantia
-      at.nome = (char*) malloc(sizeof(char) * (strlen("a") * tam_padrao));
+   Ativacao* atv_alocar(){
+      Ativacao* atv = (Ativacao*) malloc(sizeof(Ativacao));
+      assert(atv != NULL && "atv_alocar, atv");
       
-      return at;
+      int tam_padrao = 30;//só por garantia
+      atv->nome = (char*) malloc(sizeof(char) * (strlen("a") * tam_padrao));
+      
+      return atv;
    }
 
    /**
     * Desaloca os dados dinâmicos da ativação.
     * @param atv função de ativação.
    */
-   void atv_destruir(Ativacao atv){
-      free(atv.nome);
+   void atv_destruir(Ativacao* atv){
+      free(atv->forward);
+      free(atv->backward);
+      free(atv->nome);
+      free(atv);
    }
 
    /**

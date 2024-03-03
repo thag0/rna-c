@@ -7,8 +7,8 @@
  * @param entrada matriz com os dados de entrada.
  * @param saida matriz com os dados de saída.
 */
-void testar_dados(Mlp mlp, Mat entrada, Mat saida){
-   int amostras = entrada.lin;
+void testar_dados(Mlp* mlp, Mat* entrada, Mat* saida){
+   int amostras = entrada->lin;
    char* pad = "    ";
 
    printf("Resultados = [\n");
@@ -48,22 +48,31 @@ void modelo_xor(){
       0,
    };
 
-   Mat entrada = mat_alocar(4, 2);
-   Mat saida = mat_alocar(4, 1);
+   Mat* entrada = mat_alocar(4, 2);
+   Mat* saida = mat_alocar(4, 1);
    mat_atribuir_array(entrada, dados_entrada, arr_tam_arr(dados_entrada));
    mat_atribuir_array(saida, dados_saida, arr_tam_arr(dados_saida));
 
    double arr[] = {2, 4, 1};
-   Array arq = arr_alocar(arr_tam_arr(arr));
+   Array* arq = arr_alocar(arr_tam_arr(arr));
    arr_atribuir_array(arq, arr, arr_tam_arr(arr));
 
-   Mlp rede = rna_alocar(arq);
+   Mlp* rede = rna_alocar(arq);
    rna_print(rede);
 
-   Perda perda = perda_alocar("mse");
+   Perda* perda = perda_alocar("mse");
+   double t_a = 0.1;
+   int epocas = 2*1000;
    rna_treinar(rede, entrada, saida, perda, 0.1, 10*1000);
    testar_dados(rede, entrada, saida);
-   printf("Perda: %.9f", rna_avaliar(rede, entrada, saida, perda));
+   printf("Perda: %.9f\n", rna_avaliar(rede, entrada, saida, perda));
+
+   mat_desalocar(entrada);
+   mat_desalocar(saida);
+   arr_desalocar(arq);
+   rna_desalocar(rede);
+
+   perda_desalocar(perda);
 }
 
 int main(void){
