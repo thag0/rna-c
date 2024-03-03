@@ -90,9 +90,9 @@
    */
    void densa_desalocar(Densa* densa){
       mat_desalocar(densa->entrada);
-      mat_desalocar(densa->grad_entrada);
       mat_desalocar(densa->somatorio);
       mat_desalocar(densa->saida);
+      mat_desalocar(densa->grad_entrada);
       mat_desalocar(densa->grad_saida);
       mat_desalocar(densa->_pesos);
       mat_desalocar(densa->_grad_pesos);
@@ -100,7 +100,7 @@
       mat_desalocar(densa->_grad_bias);
       mat_desalocar(densa->_derivada);
 
-      atv_destruir(densa->atv);
+      atv_desalocar(densa->atv);
 
       free(densa);
    }
@@ -186,6 +186,24 @@
       mat_desalocar(temp_transp_entrada);
       mat_desalocar(temp_transp_pesos);
       mat_desalocar(temp_grad);
+   }
+
+   /**
+    * Retorna a matriz de entrada da camada.
+    * @param densa camada densa.
+    * @return entrada da camada.
+   */
+   Mat* densa_entrada(Densa* densa){
+      return densa->entrada;
+   }
+
+   /**
+    * Retorna a matriz de saida da camada.
+    * @param densa camada densa.
+    * @return saída da camada.
+   */
+   Mat* densa_saida(Densa* densa){
+      return densa->saida;
    }
 
 #endif

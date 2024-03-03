@@ -1,13 +1,9 @@
 echo off
 cls
 
-rem -- compilar --
 set COMPILADOR=gcc
-set ARQ=matriz.c
-set SAIDA=saida/matriz
 set INCLUDE=-I../lib/rna
+set SAIDA=saida/
 
-%COMPILADOR% %ARQ% -o %SAIDA% %INCLUDE% 
-
-rem -- executar --
-"%SAIDA%.exe"
+%COMPILADOR% matriz.c -o "%SAIDA%matriz" %INCLUDE% 
+%COMPILADOR% densa.c -o "%SAIDA%densa" %INCLUDE%

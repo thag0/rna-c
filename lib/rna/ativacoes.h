@@ -139,9 +139,7 @@
     * Desaloca os dados dinâmicos da ativação.
     * @param atv função de ativação.
    */
-   void atv_destruir(Ativacao* atv){
-      free(atv->forward);
-      free(atv->backward);
+   void atv_desalocar(Ativacao* atv){
       free(atv->nome);
       free(atv);
    }

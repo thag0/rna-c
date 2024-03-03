@@ -5,6 +5,7 @@
    #include "mat.h"
    #include "ativacoes.h"
    #include "perdas.h"
+   #include "otimizadores.h"
    #include "densa.h"
 
    /**
@@ -96,7 +97,7 @@
     * @return entrada do modelo.
    */
    Mat* rna_entrada(Mlp* mlp){
-      return mlp->_camadas[0]->entrada;
+      return densa_entrada(mlp->_camadas[0]);
    }
 
    /**
@@ -105,7 +106,7 @@
     * @return saída do modelo.
    */
    Mat* rna_saida(Mlp* mlp){
-      return mlp->_camadas[mlp->_tam-1]->saida;
+      return densa_saida(mlp->_camadas[mlp->_tam-1]);
    }
 
    /**
@@ -167,7 +168,7 @@
 
       int ultimo_id = mlp->_tam-1;
       densa_backward(mlp->_camadas[ultimo_id], grad);
-      for(int i = ultimo_id-1; i >=0; i--){
+      for(int i = ultimo_id-1; i >= 0; i--){
          densa_backward(
             mlp->_camadas[i], 
             mat_linha_para_array(mlp->_camadas[i+1]->grad_entrada, 0)
@@ -186,29 +187,13 @@
    }
 
    /**
-    * Atualiza os parâmetros do modelo usando a técnica do gradiente descendente.
-    * @param kernel kernel de uma camada.
-    * @param grad_k gradientes da camada em relação ao kernel.
-    * @param bias bias da camada.
-    * @param grad_b graidentes da camada em relação ao bias.
-    * @param t_a taxa de aprendizado do otimizador.
-   */
-   void rna_gradient_descent(Mat* kernel, Mat* grad_k, Mat* bias, Mat* grad_b, double t_a){
-      // var -= grad * t_a
-      mat_mult_escalar(grad_k, grad_k, t_a);
-      mat_mult_escalar(grad_b, grad_b, t_a);
-      mat_sub(kernel, kernel, grad_k);
-      mat_sub(bias, bias, grad_b);
-   }
-
-   /**
     * Aplica o gradient descente em todo as camadas do modelo.
     * @param mlp modelo multilayer perceptron.
     * @param t_a taxa de aprendizado do otimizador.
    */
    void rna_otimizar(Mlp* mlp, double t_a){
       for(int i = 0; i < mlp->_tam; i++){
-         rna_gradient_descent(
+         otm_gradient_descent(
             mlp->_camadas[i]->_pesos, mlp->_camadas[i]->_grad_pesos, 
             mlp->_camadas[i]->_bias, mlp->_camadas[i]->_grad_bias, 
             t_a
@@ -245,7 +230,7 @@
          );
       }
       
-      return p/amostras;
+      return p / amostras;
    }
 
    /**
