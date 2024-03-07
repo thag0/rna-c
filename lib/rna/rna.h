@@ -5,7 +5,7 @@
    #include "mat.h"
    #include "ativacoes.h"
    #include "perdas.h"
-   #include "otimizadores.h"
+   #include "otm/otimizador.h"
    #include "densa.h"
 
    /**
@@ -21,6 +21,8 @@
        * Quantidade de camadas da rede.
       */
       int _tam;
+
+      Otimizador* otm;
 
       //temp, talvez util futuramente
       Array* arq;
@@ -51,6 +53,8 @@
          mlp->_camadas[i] = densa_alocar(arq->elementos[i], arq->elementos[i+1]);
       }
 
+      mlp->otm = otm_alocar("gd");// otimizador padrão
+
       return mlp;
    }
 
@@ -65,6 +69,7 @@
       free(mlp->_camadas);
 
       arr_desalocar(mlp->arq);
+      otm_desalocar(mlp->otm);
       free(mlp);
    }
 
@@ -193,7 +198,8 @@
    */
    void rna_otimizar(Mlp* mlp, double t_a){
       for(int i = 0; i < mlp->_tam; i++){
-         otm_gradient_descent(
+         mlp->otm->calcular(
+            mlp->otm,
             mlp->_camadas[i]->_pesos, mlp->_camadas[i]->_grad_pesos, 
             mlp->_camadas[i]->_bias, mlp->_camadas[i]->_grad_bias, 
             t_a
