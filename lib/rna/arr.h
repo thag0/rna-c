@@ -5,7 +5,7 @@
    #include "stdlib.h"
 
    /**
-    * Array genérico.
+    * Array dinâmico genérico.
    */
    typedef struct{
       /**
@@ -20,7 +20,7 @@
    }Array;
 
    //calcula o tamanho de um array
-   #define arr_tam_arr(arr) sizeof(arr)/sizeof(arr[0])
+   #define arr_tam(arr) sizeof(arr)/sizeof(arr[0])
 
    /**
     * Preenche todo o conteúdo do array com o valor fornecido.

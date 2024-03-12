@@ -34,10 +34,10 @@ int main(void){
    Densa* densa = densa_alocar(2, 1);
 
    Mat* treino_x = mat_alocar(4, 2);
-   mat_atribuir_array(treino_x, entrada, arr_tam_arr(entrada));
+   mat_atribuir_array(treino_x, entrada, arr_tam(entrada));
 
    Mat* treino_y = mat_alocar(4, 1);
-   mat_atribuir_array(treino_y, saida, arr_tam_arr(saida));
+   mat_atribuir_array(treino_y, saida, arr_tam(saida));
 
    int amostras = treino_x->lin;
    int epocas = 10*1000;

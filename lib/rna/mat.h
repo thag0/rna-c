@@ -8,7 +8,7 @@
    #include <time.h>
    #include "arr.h"
 
-   //Matriz genérica
+   //Matriz dinâmica genérica
    typedef struct{
       //quantidade de linhas
       int lin;
@@ -119,12 +119,12 @@
     * @param crescente valor crescrente (1, 2, 3) ou decrescente (-1, -2, -3)
    */
    void mat_preencher_contador(Mat* m, bool cres){
+      int n = m->_tam;
       if(cres){
-         for(int i = 0; i < m->_tam; i++){
+         for(int i = 0; i < n; i++){
             m->elementos[i] = i + 1;
          }
       }else{
-         int n = m->_tam;
          for(int i = 0; i < n; i++){
             m->elementos[i] = n - i;
          }
@@ -190,7 +190,7 @@
     * @param b segunda matriz.
     * @return resultado da verificação
    */
-   bool mat_comparar_linhas_colunas(Mat* a, Mat* b){
+   bool mat_comparar_formato(Mat* a, Mat* b){
       return (a->lin == b->lin) && (a->col == b->col);
    }
 
@@ -202,7 +202,7 @@
     * @param b segunda matriz.
    */
    void mat_add(Mat* dest, Mat* a, Mat* b){
-      if((!mat_comparar_linhas_colunas(a, b)) || (!mat_comparar_linhas_colunas(a, dest))){
+      if((!mat_comparar_formato(a, b)) || (!mat_comparar_formato(a, dest))){
          printf("As matrizes fornecidas devem conter o mesmo formato.\n");
          assert(0);
       }
@@ -221,7 +221,7 @@
     * @param b segunda matriz.
    */
    void mat_sub(Mat* dest, Mat* a, Mat* b){
-      if((!mat_comparar_linhas_colunas(a, b)) || (!mat_comparar_linhas_colunas(a, dest))){
+      if((!mat_comparar_formato(a, b)) || (!mat_comparar_formato(a, dest))){
          printf("As matrizes fornecidas devem conter o mesmo formato.\n");
          assert(0);
       }
@@ -265,7 +265,7 @@
     * @param b segunda matriz.
    */
    void mat_had(Mat* dest, Mat* a, Mat* b){
-      if((!mat_comparar_linhas_colunas(a, b)) || (!mat_comparar_linhas_colunas(a, dest))){
+      if((!mat_comparar_formato(a, b)) || (!mat_comparar_formato(a, dest))){
          printf("As matrizes fornecidas devem conter o mesmo formato.\n");
          assert(0);
       }
@@ -283,7 +283,7 @@
     * @param esc valor constante.
    */
    void mat_mult_escalar(Mat* dest, Mat* m, double esc){
-      if((!mat_comparar_linhas_colunas(dest, m))){
+      if((!mat_comparar_formato(dest, m))){
          printf("As matrizes fornecidas devem conter o mesmo formato.\n");
          assert(0);
       }
@@ -316,7 +316,7 @@
     * @param m matriz com os dados.
    */
    void mat_copiar(Mat* dest, Mat* m){
-      if((!mat_comparar_linhas_colunas(dest, m))){
+      if((!mat_comparar_formato(dest, m))){
          printf("As matrizes fornecidas devem conter o mesmo formato.\n");
          assert(0);
       }

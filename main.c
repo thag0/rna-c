@@ -50,12 +50,12 @@ void modelo_xor(){
 
    Mat* entrada = mat_alocar(4, 2);
    Mat* saida = mat_alocar(4, 1);
-   mat_atribuir_array(entrada, dados_entrada, arr_tam_arr(dados_entrada));
-   mat_atribuir_array(saida, dados_saida, arr_tam_arr(dados_saida));
+   mat_atribuir_array(entrada, dados_entrada, arr_tam(dados_entrada));
+   mat_atribuir_array(saida, dados_saida, arr_tam(dados_saida));
 
    double arr[] = {2, 4, 1};
-   Array* arq = arr_alocar(arr_tam_arr(arr));
-   arr_atribuir_array(arq, arr, arr_tam_arr(arr));
+   Array* arq = arr_alocar(arr_tam(arr));
+   arr_atribuir_array(arq, arr, arr_tam(arr));
 
    Mlp* rede = rna_alocar(arq);
    rna_print(rede);

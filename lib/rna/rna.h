@@ -64,7 +64,7 @@
    */
    void rna_desalocar(Mlp* mlp){
       for(int i = 0; i < mlp->_tam; i++){
-         free(mlp->_camadas[i]);
+         densa_desalocar(mlp->_camadas[i]);
       }
       free(mlp->_camadas);
 
